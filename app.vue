@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const cookie = useCookie("city")
-
+const config=useRuntimeConfig()
 if (!cookie.value) cookie.value = "Toronto"
 const search = ref(cookie.value);
 const input = ref("");
@@ -12,7 +12,12 @@ const { data: city, error, } = useAsyncData(
     let response: any;
     try {
       response = await $fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=metric&appid=64e28f64b16b0f6cfeea0039ad3536da`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${search.value}`, {
+          params: {
+            units: "metric",
+            appid: config.WEATHER_APP_SECRET,
+          },
+      }
 
       );
       cookie.value = search.value
