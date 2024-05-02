@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const cookie = useCookie("city")
-const config=useRuntimeConfig()
+const config = useRuntimeConfig()
 if (!cookie.value) cookie.value = "Toronto"
 const search = ref(cookie.value);
 const input = ref("");
@@ -13,10 +13,10 @@ const { data: city, error, } = useAsyncData(
     try {
       response = await $fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${search.value}`, {
-          params: {
-            units: "metric",
-            appid: config.WEATHER_APP_SECRET,
-          },
+        params: {
+          units: "metric",
+          appid: config.WEATHER_APP_SECRET,
+        },
       }
 
       );
@@ -48,22 +48,32 @@ const { data: city, error, } = useAsyncData(
   }
 );
 
+let today: string = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric"
+});
+
 const handleClick = () => {
   const formatedSearch = input.value.trim().split(" ").join("+");
   search.value = formatedSearch;
   input.value = "";
 };
+
+const goBack = () => {
+}
 </script>
 
 <template>
-  <div class="h-screen relative overflow-hidden">
+  <div v-if="city" class="h-screen relative overflow-hidden">
     <img :src="background" />
     <div class="absolute w-full h-full top-0 overlay" />
     <div v-if="city" class="absolute w-full h-full top-0 p-48">
       <div class="flex justify-between">
         <div>
           <h1 v-if="city.name" class="text-7xl text-white">{{ city.name }}</h1>
-          <p class="font-extralight text-2xl mt-2 text-white">Sunday Dec 9th</p>
+          <p class="font-extralight text-2xl mt-2 text-white">{{today}}</p>
           <img v-if="city.weather && city.weather.length > 0"
             :src="`https://openweathermap.org/img/wn/${city.weather[0].icon}@4x.png`" class="w-56 icon" />
         </div>
@@ -76,6 +86,9 @@ const handleClick = () => {
         <button class="bg-sky-400 w-20 text-white h-10" @click="handleClick">Search</button>
       </div>
     </div>
+  </div>
+  <div v-else>
+    <button @click="goBack">go Back</button>
   </div>
 </template>
 
